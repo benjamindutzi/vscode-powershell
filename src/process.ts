@@ -9,7 +9,7 @@ import vscode = require("vscode");
 import { Logger } from "./logging";
 import Settings = require("./settings");
 import utils = require("./utils");
-import { IEditorServicesSessionDetails, SessionManager } from "./session";
+import { IEditorServicesSessionDetails } from "./session";
 
 export class PowerShellProcess {
     public static escapeSingleQuotes(psPath: string): string {

@@ -213,9 +213,8 @@ export class SessionManager implements Middleware {
             `-BundledModulesPath '${PowerShellProcess.escapeSingleQuotes(this.bundledModulesPath)}' ` +
             `-EnableConsoleRepl `;
 
-        if (this.sessionSettings.integratedConsole.suppressStartupBanner) {
-            this.editorServicesArgs += "-StartupBanner '' ";
-        } else {
+        if (this.PowerShellExeDetails.supportsProperArguments
+            && !this.sessionSettings.integratedConsole.suppressStartupBanner) {
             const startupBanner = `${this.HostName} Extension v${this.HostVersion}
 Copyright (c) Microsoft Corporation.
 
@@ -223,6 +222,8 @@ https://aka.ms/vscode-powershell
 Type 'help' to get help.
 `;
             this.editorServicesArgs += `-StartupBanner "${startupBanner}" `;
+        } else {
+            this.editorServicesArgs += "-StartupBanner '' ";
         }
 
         if (this.sessionSettings.developer.editorServicesWaitForDebugger) {

@@ -36,6 +36,7 @@ export interface IPlatformDetails {
 export interface IPowerShellExeDetails {
     readonly displayName: string;
     readonly exePath: string;
+    readonly supportsProperArguments: boolean;
 }
 
 export function getPlatformDetails(): IPlatformDetails {
