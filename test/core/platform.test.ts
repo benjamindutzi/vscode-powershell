@@ -4,9 +4,64 @@
 import * as assert from "assert";
 import mockFS = require("mock-fs");
 import FileSystem = require("mock-fs/lib/filesystem");
+import * as fs from "fs";
 import * as path from "path";
 import * as sinon from "sinon";
+import * as vscode from "vscode";
 import * as platform from "../../src/platform";
+
+class TestFileStat implements vscode.FileStat {
+    type: vscode.FileType;
+    ctime: number = 0;
+    mtime: number = 0;
+    size: number = 0;
+    constructor(fsStats: fs.Stats) {
+        this.type = fsStats.isFile() ? vscode.FileType.File : vscode.FileType.Directory;
+        if (fsStats.isSymbolicLink()) {
+            // tslint:disable-next-line:no-bitwise
+            this.type |= vscode.FileType.SymbolicLink;
+        }
+    }
+}
+
+class TestFS implements vscode.FileSystemProvider {
+    onDidChangeFile: vscode.Event<vscode.FileChangeEvent[]> = new vscode.EventEmitter<vscode.FileChangeEvent[]>().event;
+    watch(uri: vscode.Uri, options: { recursive: boolean; excludes: string[]; }): vscode.Disposable {
+        throw new Error("Method not implemented.");
+    }
+    stat(uri: vscode.Uri): vscode.FileStat | Thenable<vscode.FileStat> {
+        return new TestFileStat(fs.lstatSync(uri.fsPath));
+    }
+    readDirectory(uri: vscode.Uri): [string, vscode.FileType][] | Thenable<[string, vscode.FileType][]> {
+        throw new Error("Method not implemented.");
+    }
+    createDirectory(uri: vscode.Uri): void | Thenable<void> {
+        throw new Error("Method not implemented.");
+    }
+    readFile(uri: vscode.Uri): Uint8Array | Thenable<Uint8Array> {
+        throw new Error("Method not implemented.");
+    }
+    writeFile(uri: vscode.Uri, content: Uint8Array, options: { create: boolean; overwrite: boolean; }): void | Thenable<void> {
+        throw new Error("Method not implemented.");
+    }
+    delete(uri: vscode.Uri, options: { recursive: boolean; }): void | Thenable<void> {
+        throw new Error("Method not implemented.");
+    }
+    rename(oldUri: vscode.Uri, newUri: vscode.Uri, options: { overwrite: boolean; }): void | Thenable<void> {
+        throw new Error("Method not implemented.");
+    }
+    copy?(source: vscode.Uri, destination: vscode.Uri, options: { overwrite: boolean; }): void | Thenable<void> {
+        throw new Error("Method not implemented.");
+    }
+}
+
+const testFS = new TestFS();
+try {
+    vscode.workspace.registerFileSystemProvider("file", testFS);
+} catch {
+    // NOTE: This throws an error because it's not supposed to allow us to
+    // register the file provider...but it does, and it's super useful here.
+}
 
 /**
  * Describes a platform on which the PowerShell extension should work,
