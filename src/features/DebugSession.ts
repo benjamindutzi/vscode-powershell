@@ -428,20 +428,18 @@ export class PickPSHostProcessFeature extends LanguageClientConsumer {
             pid: "current",
         }];
 
-        const hostProcesses = await this.languageClient?.sendRequest(GetPSHostProcessesRequestType, {});
-        for (const p in hostProcesses) {
-            if (hostProcesses.hasOwnProperty(p)) {
+        const response = await this.languageClient?.sendRequest(GetPSHostProcessesRequestType, {});
+        for (const process of response?.hostProcesses ?? []) {
                 let windowTitle = "";
-                if (hostProcesses[p].mainWindowTitle) {
-                    windowTitle = `, Title: ${hostProcesses[p].mainWindowTitle}`;
+                if (process.mainWindowTitle) {
+                    windowTitle = `, Title: ${process.mainWindowTitle}`;
                 }
 
                 items.push({
-                    label: hostProcesses[p].processName,
-                    description: `PID: ${hostProcesses[p].processId.toString()}${windowTitle}`,
-                    pid: hostProcesses[p].processId,
+                    label: process.processName,
+                    description: `PID: ${process.processId.toString()}${windowTitle}`,
+                    pid: process.processId,
                 });
-            }
         }
 
         if (items.length === 0) {

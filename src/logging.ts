@@ -135,7 +135,7 @@ export class Logger implements ILogger {
     }
 
     public async startNewLog(minimumLogLevel: string = "Normal"): Promise<void> {
-        this.MinimumLogLevel = this.logLevelNameToValue(minimumLogLevel.trim());
+        this.MinimumLogLevel = Logger.logLevelNameToValue(minimumLogLevel);
 
         this.logSessionPath =
             vscode.Uri.joinPath(
@@ -146,8 +146,9 @@ export class Logger implements ILogger {
         await vscode.workspace.fs.createDirectory(this.logSessionPath);
     }
 
-    private logLevelNameToValue(logLevelName: string): LogLevel {
-        switch (logLevelName.toLowerCase()) {
+    // TODO: Make the enum smarter about strings so this goes away.
+    public static logLevelNameToValue(logLevelName: string): LogLevel {
+        switch (logLevelName.trim().toLowerCase()) {
             case "diagnostic": return LogLevel.Diagnostic;
             case "verbose": return LogLevel.Verbose;
             case "normal": return LogLevel.Normal;

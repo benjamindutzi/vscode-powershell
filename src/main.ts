@@ -122,7 +122,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<IPower
 
     // Setup the logger.
     logger = new Logger(context.globalStorageUri);
-    logger.MinimumLogLevel = LogLevel[settings.developer.editorServicesLogLevel];
+    logger.MinimumLogLevel = Logger.logLevelNameToValue(settings.developer.editorServicesLogLevel);
 
     sessionManager = new SessionManager(
         context,
